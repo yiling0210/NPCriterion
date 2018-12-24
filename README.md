@@ -1,4 +1,3 @@
-Yiling
 # NPCriterion
 Model comparison criterion under the Neyman Pearson binary classification paradigm
 
