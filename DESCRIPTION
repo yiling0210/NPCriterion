@@ -1,6 +1,6 @@
 Package: NPCriterion
 Type: Package
-Title: What the Package Does (Title Case)
+Title: Neyman-Pearson Criterion (NPC): A Model Selection Criterion for Asymmetric Binary Classification
 Version: 0.1.0
 Author: Who wrote it
 Maintainer: The package maintainer <yourself@somewhere.net>
