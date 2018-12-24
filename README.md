@@ -1,7 +1,6 @@
 # NPCriterion
 Model comparison criterion under the Neyman Pearson binary classification paradigm
 
-### Latest News
 
 ### Introduction
 
@@ -23,6 +22,11 @@ install_github("yiling0210/NPCriterion")
 NPCriterion is built to integrate many common classification methods, including logistic regression, penalized logistic regression, svm, random forest, linear discriminant analysis (lds), sparse lda, naive Bayes, nonparametric Naive Bayes and adaBoost. 
 Its mandatory inputs include the covariates matrix x, response y, classification method method and the type I error control alpha:
 ```R
+x = matrix(rnorm(20000), ncol =5)
+y = rbinom(x%*%1:5,size = 1, p =0.5)
+table(y)
+
+
 npCriterion(x = x,  # covariate matrix 
             y = y,  # binary vector response
             method = "logistic", # classification method
@@ -38,4 +42,30 @@ npCriterion(x = x,  # covariate matrix
 
 npCriterion returns a list, including features that have been examined featuresets_examined and	a feature set with the minimal NPC value features_minNPC	
 
-For detailed usage, please refer to the package [manual](man/npCriterion.Rd) or vignette.
+Sometimes due to computational power limits, users may want to do feature screening first:
+```R
+
+n = 1000; p = 1000
+y = rbinom(n,size = 1, p =0.5)
+x = matrix(NA, nrow =n,ncol =p)
+x1 = rmvnorm(sum(y==1), mean = rep(1, p), sigma = diag(1,p))
+x0 = rmvnorm(sum(y==0), mean = seq(from = -2, to = 1, length.out = p), sigma = diag(1,p))
+x[y==1,] = x1
+x[y==0,] = x0
+table(y)
+
+npMarginal(x = x, 
+           y = y, 
+           method = c("logistic", "penlog", "svm", "randomforest",
+  "lda", "slda", "nb", "nnb", "ada", "tree"),
+            p.adjust.methods = c("holm", "hochberg", "hommel", "bonferroni", "BH",
+  "BY", "fdr", "none"), 
+            N, 
+            alpha, 
+            delta = 0.05, 
+            epsilon = 0.05,
+            l0 = 0.5, 
+            l1 = 0.5,
+            )
+```
+For detailed usage, please refer to the package [manual](man/npmarginal.Rd). 
