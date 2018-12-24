@@ -38,4 +38,4 @@ npCriterion(x = x,  # covariate matrix
 
 npCriterion returns a list, including features that have been examined featuresets_examined and	a feature set with the minimal NPC value features_minNPC	
 
-For detailed usage, please refer to the package [manual]{} or vignette.
+For detailed usage, please refer to the package [manual](man/npCriterion.Rd) or vignette.
