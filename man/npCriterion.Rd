@@ -63,16 +63,22 @@ when 'enumeration' = 'exhaustive', a list of size 2 whose first component is enu
 \item{npc}{when 'enumeration' = 'forward' or 'backward', a vector of NPC values of feature sets in featuresets_examined;
 when 'enumeration' = 'exhaustive', a list of vectors of NPC values computed on the feature sets in featuresets_examined
 }
-\item{npc.se}{when 'enumeration' = 'forward' or 'backward', a vector of standard deviations of empirical type II errors of feature sets in featuresets_examined;
-when 'enumeration' = 'exhaustive', a list of stand deviations of empirical type II errors computed on the feature sets in featuresets_examined
+\item{npc.sd}{when 'enumeration' = 'forward' or 'backward', a vector of standard deviations of empirical type II errors of feature sets in featuresets_examined;
+when 'enumeration' = 'exhaustive', a list of standard deviations of empirical type II errors computed on the feature sets in featuresets_examined
+}
+\item{npc.se}{when 'enumeration' = 'forward' or 'backward', a vector of standard errors of empirical type II errors of feature sets in featuresets_examined;
+when 'enumeration' = 'exhaustive', a list of standard errors of empirical type II errors computed on the feature sets in featuresets_examined
 }
 \item{err}{when 'enumeration' = 'forward' or 'backward', a vector of CV errors of feature sets in featuresets_examined;
 when 'enumeration' = 'exhaustive', a list of vectors of CV errors computed on the feature sets in featuresets_examined
 }
 \item{err.se}{when 'enumeration' = 'forward' or 'backward', a vector of standard deviations of test errors of feature sets in featuresets_examined;
-when 'enumeration' = 'exhaustive', a list of stand deviations of test errors computed on the feature sets in featuresets_examined
+when 'enumeration' = 'exhaustive', a list of standard deviations of test errors computed on the feature sets in featuresets_examined
 }
-\item{features_minNPC}{a feature set with the minimal NPC value}
+\item{err.se}{when 'enumeration' = 'forward' or 'backward', a vector of standard errors of test errors of feature sets in featuresets_examined;
+when 'enumeration' = 'exhaustive', a list of standard errors of test errors computed on the feature sets in featuresets_examined
+}
+\item{features_minNPC}{a feature set with the minimal NPC value and its corresponding NPC statistics and test errors.}
 }
 \description{
 Feature selection based on Neyman-Pearson Criterion (NPC)
