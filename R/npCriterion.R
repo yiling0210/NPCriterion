@@ -40,16 +40,22 @@
 #' \item{npc}{when 'enumeration' = 'forward' or 'backward', a vector of NPC values of feature sets in featuresets_examined;
 #' when 'enumeration' = 'exhaustive', a list of vectors of NPC values computed on the feature sets in featuresets_examined
 #' }
-#' \item{npc.se}{when 'enumeration' = 'forward' or 'backward', a vector of standard deviations of empirical type II errors of feature sets in featuresets_examined;
-#' when 'enumeration' = 'exhaustive', a list of stand deviations of empirical type II errors computed on the feature sets in featuresets_examined
+#' \item{npc.sd}{when 'enumeration' = 'forward' or 'backward', a vector of standard deviations of empirical type II errors of feature sets in featuresets_examined;
+#' when 'enumeration' = 'exhaustive', a list of standard deviations of empirical type II errors computed on the feature sets in featuresets_examined
+#' }
+#' \item{npc.se}{when 'enumeration' = 'forward' or 'backward', a vector of standard errors of empirical type II errors of feature sets in featuresets_examined;
+#' when 'enumeration' = 'exhaustive', a list of standard errors of empirical type II errors computed on the feature sets in featuresets_examined
 #' }
 #' \item{err}{when 'enumeration' = 'forward' or 'backward', a vector of CV errors of feature sets in featuresets_examined;
 #' when 'enumeration' = 'exhaustive', a list of vectors of CV errors computed on the feature sets in featuresets_examined
 #' }
 #' \item{err.se}{when 'enumeration' = 'forward' or 'backward', a vector of standard deviations of test errors of feature sets in featuresets_examined;
-#' when 'enumeration' = 'exhaustive', a list of stand deviations of test errors computed on the feature sets in featuresets_examined
+#' when 'enumeration' = 'exhaustive', a list of standard deviations of test errors computed on the feature sets in featuresets_examined
 #' }
-#' \item{features_minNPC}{a feature set with the minimal NPC value}
+#' \item{err.se}{when 'enumeration' = 'forward' or 'backward', a vector of standard errors of test errors of feature sets in featuresets_examined;
+#' when 'enumeration' = 'exhaustive', a list of standard errors of test errors computed on the feature sets in featuresets_examined
+#' }
+#' \item{features_minNPC}{a feature set with the minimal NPC value and its corresponding NPC statistics and test errors.}
 #'
 
 #' @author Yiling Chen, \email{yiling0210@@ucla.edu}
@@ -211,14 +217,16 @@ npCriterion = function(x,y,method = c("logistic", "penlog", "svm",
     ###### organize output from forward selection
     obj$featuresets_examined = list(enumeration = 'forward', sequential_features = selected_idx)
 
-    criteria = matrix(unlist(selected_npc), byrow = T, ncol = 4)
-    colnames(criteria) = c('npc', 'npc.se', 'err', 'err.se')
-    obj$npc = criteria[,1]
-    obj$npc.se = criteria[,2]
-    obj$err = criteria[,3]
-    obj$err.se = criteria[,4]
+    criteria = matrix(unlist(selected_npc), byrow = T, ncol = length(selected_npc[[1]]))
+    colnames(criteria) = names(selected_npc[[1]])
+    stats_minNPC = criteria[which.min(criteria[,1]),]
+    criteria = split(t(criteria), 1:ncol(criteria))
+    names(criteria) = names(selected_npc[[1]])
+    obj = c(obj, criteria)
 
-    obj$features_minNPC = selected_idx[1:which.min(criteria[,1])]
+
+    obj$features_minNPC = list(feature_idx = selected_idx[1:which.min(criteria$NPC)],
+                               criteria = stats_minNPC)
 
     return(obj)
   }
@@ -273,13 +281,17 @@ npCriterion = function(x,y,method = c("logistic", "penlog", "svm",
 
     obj$featuresets_examined = list(enumeration = enumeration, sequential_features = unselected_idx)
 
-    criteria = matrix(unlist(selected_npc), byrow = T, ncol = 4)
-    colnames(criteria) = c('npc', 'npc.se', 'err', 'err.se')
-    obj$npc = criteria[,1]
-    obj$npc.se = criteria[,2]
-    obj$err = criteria[,3]
-    obj$err.se = criteria[,4]
-    obj$features_minNPC= setdiff(1:p,unselected_idx[1:which.min(criteria[,1])])
+    criteria = matrix(unlist(selected_npc), byrow = T, ncol = length(selected_npc[[1]]))
+    colnames(criteria) = names(selected_npc[[1]])
+    stats_minNPC = criteria[which.min(criteria[,1]),]
+    criteria = split(t(criteria), 1:ncol(criteria))
+    names(criteria) = names(selected_npc[[1]])
+    obj = c(obj, criteria)
+
+    obj$features_minNPC= list(feature_idx = setdiff(1:p,unselected_idx[1:which.min(criteria$NPC)]),
+                              stats_minNPC = stats)
+
+
     return(obj)
 
 
@@ -329,9 +341,9 @@ npCriterion = function(x,y,method = c("logistic", "penlog", "svm",
 
       criteria = matrix(unlist(stats_fixedell),
                         byrow = T,
-                        ncol = 4)
-      re = list(subset_idx = subset_idx, npc = criteria[,1],
-                npc.se = criteria[,2], err = criteria[,3], err.se = criteria[,4])
+                        ncol = length(stats_fixedell[[1]]))
+      re = list(subset_idx = subset_idx, npc = criteria[,1],npc.sd = criteria[,2],
+                npc.se = criteria[,3], err = criteria[,4], err.sd = criteria[,5], err.se = criteria[,6])
 
       return(re)
     }, mc.cores = ncores)
@@ -339,9 +351,11 @@ npCriterion = function(x,y,method = c("logistic", "penlog", "svm",
     names(stats_ls) = paste0('ell=', 1:max_feature_size)
     obj$featuresets_examined = list(enumeration = enumeration, lapply(stats_ls,function(x){x$subset_idx}))
     obj$npc = lapply(stats_ls,function(x){x$npc})
+    obj$npc.sd = lapply(stats_ls,function(x){x$npc.sd})
     obj$npc.se = lapply(stats_ls,function(x){x$npc.se})
     obj$err = lapply(stats_ls,function(x){x$err})
-    obj$err.se = lapply(stats_ls,function(x){x$er.se})
+    obj$err.sd = lapply(stats_ls,function(x){x$err.sd})
+    obj$err.se = lapply(stats_ls,function(x){x$err.se})
 
 
     npc  = unlist(obj$npc)
@@ -351,9 +365,10 @@ npCriterion = function(x,y,method = c("logistic", "penlog", "svm",
     }else{
       minNPC_feature = stats_ls[[minNPC_ell_idx]]$subset_idx[which.min(unlist(npc)) -  cumsum(choose(p, 1:max_feature_size))[minNPC_ell_idx - 1], ]
     }
+    criteria = matrix(unlist(stats_ls[[minNPC_ell_idx]][-1]), byrow = F, nrow = nrow( stats_ls[[minNPC_ell_idx]]$subset_idx))
+    minNPC_stats = criteria[which.min(criteria[,1]),]
 
-
-    obj$features_minNPC = minNPC_feature
+    obj$features_minNPC = list(feature_idx = minNPC_feature, stats_minNPC = minNPC_stats)
 
 
 

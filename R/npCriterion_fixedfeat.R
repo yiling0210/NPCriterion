@@ -41,7 +41,7 @@ npCriterion_fixedfeat = function(x,y,
   cl = unlist(re)[2*(1:B)]
 
 
-  list( NPC = mean(NPC), npc.se = sd(NPC), test_err = mean(cl), err.se = sd(cl))
+  list( NPC = mean(NPC), npc.sd = sd(NPC),npc.se = sd(NPC)/sqrt(B), test_err = mean(cl), err.sd = sd(cl), err.se = sd(cl)/sqrt(B) )
 
 }
 

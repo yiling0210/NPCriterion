@@ -1,3 +1,10 @@
+# method
+# train.x = x[-c(leaveoutclass1,leaveoutclass0),];
+# train.y = y[-c(leaveoutclass1,leaveoutclass0)];
+# test.x = x[c(leaveoutclass1,leaveoutclass0),];
+# test.y = y[c(leaveoutclass1,leaveoutclass0)]
+
+
 classificationScores = function(method, train.x, train.y, test.x, test.y, ...){
 
 
@@ -40,7 +47,7 @@ classificationScores = function(method, train.x, train.y, test.x, test.y, ...){
       test.x = as.matrix(test.x)
     }
     fit = lda(train.x, train.y)
-    test.score = predict(fit, data.frame(test.x))$posterior[, 2]
+    test.score = predict(fit, newdata = test.x)$posterior[, 2]
   }
 
   else if (method == "slda") {
